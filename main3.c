@@ -28,7 +28,7 @@ int main() {
     int songCount = 0;
     int choice = 0;
 
-    // creates a loop to display the menu until a number is entered
+    // creates a loop to display the menu
     do {
         printf("\n--- Song Catalogue Menu ---\n");
         printf("[1] Enter data\n");
@@ -44,46 +44,46 @@ int main() {
             printf("Invalid input. Please enter a number between 1 and 5.\n");
             continue;
         }
-        getchar(); // consumes the leftover newline character from the input buffer
+        getchar(); // gets rid of the leftover enter key
 
-        switch (choice) {
+        switch (choice) { //instead of writing seperate if statements switch looks at the number inside choice and jumps to the matching case
             case 1:
-                enterData(catalogue, &songCount);
+                enterData(catalogue, &songCount);//runs the function enterData and breaks the loop
                 break;
             case 2:
-                saveToFile(catalogue, songCount);
+                saveToFile(catalogue, songCount);//runs the function saveToFile and breaks the loop
                 break;
             case 3:
-                readFromFile(catalogue, &songCount);
+                readFromFile(catalogue, &songCount);//runs the function readFromFile and breaks the loop
                 break;
             case 4:
-                printCatalogue(catalogue, songCount);
+                printCatalogue(catalogue, songCount);//runs the function printCatalogue and breaks the loop
                 break;
             case 5:
-                printf("Exiting program. Goodbye!\n");
+                printf("Exiting program. Goodbye!\n");//exits menu
                 break;
             default:
-                printf("Invalid choice! Please select 1-5.\n");
+                printf("Invalid choice! Please select 1-5.\n");//
         }
-    } while (choice != 5);
+    } while (choice != 5);//this will keep the menu on a loop until option 5 is selected
 
-    return 0;
+    return 0;//closes program
 }
 
-// Helper function to remove the trailing newline added by fgets()
-void stripNewline(char *str) {
-    size_t len = strlen(str);
-    if (len > 0 && str[len - 1] == '\n') {
-        str[len - 1] = '\0';
+// function to remove the leftover enter key added by fgets()
+void stripNewline(char *str) {//accepts a piece of text
+    size_t len = strlen(str);//counts how many characters are in the text
+    if (len > 0 && str[len - 1] == '\n') {//checks that the text isnt empty and the last character is an enter
+        str[len - 1] = '\0';//erases the enter key and replaces it with '\0' the end of text marker or null terminator
     }
 }
 
-// Option [1]: Enter song details from keyboard
+// function to enter song details
 void enterData(struct Song catalogue[], int *count) {
     int numToAdd = 0;
-    printf("\nHow many songs would you like to enter? (Note: Assessment requires at least 5 in total): ");
+    printf("\nHow many songs would you like to enter?: ");
     scanf("%d", &numToAdd);
-    getchar(); // Clear newline from buffer
+    getchar(); // clear leftover enter key
 
     for (int i = 0; i < numToAdd; i++) {
         if (*count >= MAX_SONGS) {
