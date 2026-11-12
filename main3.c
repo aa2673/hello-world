@@ -79,113 +79,112 @@ void stripNewline(char *str) {//accepts a piece of text
 }
 
 // function to enter song details
-void enterData(struct Song catalogue[], int *count) {
-    int numToAdd = 0;
+void enterData(struct Song catalogue[], int *count) {//brings song catalogue structure and pointer is used so the total of songs can be updated as you add new tracks
+    int numToAdd = 0;//sets number of songs to be added as 0
     printf("\nHow many songs would you like to enter?: ");
-    scanf("%d", &numToAdd);
+    scanf("%d", &numToAdd);//gets the number of songs you want to add
     getchar(); // clear leftover enter key
 
-    for (int i = 0; i < numToAdd; i++) {
-        if (*count >= MAX_SONGS) {
+    for (int i = 0; i < numToAdd; i++) {//creates a loop that lets you add how many songs you want to add
+        if (*count >= MAX_SONGS) {//if you have already reached max songs it will not allow you to add more
             printf("Catalogue is full!\n");
             break;
         }
 
-        printf("\n--- Entering Song %d ---\n", *count + 1);
+        printf("\n--- Entering Song %d ---\n", *count + 1);//updates the song count
 
         printf("Enter Name of the Band or Singer: ");
-        fgets(catalogue[*count].band, MAX_STR, stdin);
-        stripNewline(catalogue[*count].band);
+        fgets(catalogue[*count].band, MAX_STR, stdin);//use fgets because it will read a full line of text from the keyboard including spaces unlike scanf
+        stripNewline(catalogue[*count].band);//gets rid of the enter key from fgets
 
         printf("Enter Name of Song: ");
-        fgets(catalogue[*count].title, MAX_STR, stdin);
+        fgets(catalogue[*count].title, MAX_STR, stdin);//gets song name
         stripNewline(catalogue[*count].title);
 
         printf("Enter Price: ");
-        scanf("%f", &catalogue[*count].price);
+        scanf("%f", &catalogue[*count].price);//gets price, uses float so you can input a decimal
 
-        printf("Enter Year of Release: ");
+        printf("Enter Year of Release: ");//gets year of realase
         scanf("%d", &catalogue[*count].year);
-        getchar(); // Clear newline after reading integer so the next fgets() works
+        getchar(); // gets rid of leftover enter after reading integer so the next fgets() works
 
-        (*count)++;
+        (*count)++;//adds 1 to the counter in main
     }
     printf("\nSuccessfully added %d song(s) to memory.\n", numToAdd);
 }
 
-// Option [2]: Save current songs in memory to a text file
+// function to save songs to file
 void saveToFile(struct Song catalogue[], int count) {
-    FILE *fp = fopen(FILENAME, "w");
-    if (fp == NULL) {
+    FILE *fp = fopen(FILENAME, "w");//creates a text file in write mode *fp is for file pointer "w" erases old content to write a fresh list
+    if (fp == NULL) {//safety check for if the computer cant open the file
         printf("Error: Could not open file %s for writing.\n", FILENAME);
         return;
     }
 
-    // Write each song's 4 fields on separate lines for easy reading of spaces
-    for (int i = 0; i < count; i++) {
+    // writes each detail of the song on separate lines
+    for (int i = 0; i < count; i++) {//creates a loop to display all songs so far
         fprintf(fp, "%s\n", catalogue[i].band);
         fprintf(fp, "%s\n", catalogue[i].title);
         fprintf(fp, "%.2f\n", catalogue[i].price);
         fprintf(fp, "%d\n", catalogue[i].year);
     }
 
-    fclose(fp);
+    fclose(fp);//saves changes and closes files
     printf("Successfully saved %d song(s) to '%s'.\n", count, FILENAME);
 }
 
-// Option [3]: Retrieve song data from the text file into memory
+// function to retrieve song data from file into memory
 void readFromFile(struct Song catalogue[], int *count) {
-    FILE *fp = fopen(FILENAME, "r");
-    if (fp == NULL) {
+    FILE *fp = fopen(FILENAME, "r");//opens the saved text file in reading mode 
+    if (fp == NULL) {//checks if the file exists to be opened
         printf("Error: Could not open file '%s'. Have you saved data first?\n", FILENAME);
         return;
     }
 
-    *count = 0;
-    // Read lines in sets of 4 until End Of File (EOF) is reached
-    while (*count < MAX_SONGS && fgets(catalogue[*count].band, MAX_STR, fp) != NULL) {
-        stripNewline(catalogue[*count].band);
+    *count = 0;//resets active song list to 0, it clears out current memory, to load a fresh copy.
+    // reads lines 4 at a time until the end of the file
+    while (*count < MAX_SONGS && fgets(catalogue[*count].band, MAX_STR, fp) != NULL) {//creates a while loop, checks there is room in the catalogue and whether or not the band name is in the limit, when there are no more lines left loop stops.
+        stripNewline(catalogue[*count].band);//takes away the leftover enter key at the end of the band name
 
-        if (fgets(catalogue[*count].title, MAX_STR, fp) == NULL) break;
-        stripNewline(catalogue[*count].title);
+        if (fgets(catalogue[*count].title, MAX_STR, fp) == NULL) break;//checks song name is within limit
+        stripNewline(catalogue[*count].title);//strips away leftover enter key at the end of the title
 
-        if (fscanf(fp, "%f\n", &catalogue[*count].price) != 1) break;
-        if (fscanf(fp, "%d\n", &catalogue[*count].year) != 1) break;
+        if (fscanf(fp, "%f\n", &catalogue[*count].price) != 1) break;//checks if price is a float
+        if (fscanf(fp, "%d\n", &catalogue[*count].year) != 1) break;//checks if year is a number
 
-        (*count)++;
+        (*count)++;//updates the counter by 1
     }
 
-    fclose(fp);
+    fclose(fp);//closes the file
     printf("Successfully loaded %d song(s) from '%s'.\n", *count, FILENAME);
 }
 
-// Bubble Sort algorithm to order songs by Price (Lower to Higher)
+// function to sort prices from lowest to highest
 void sortCatalogueByPrice(struct Song catalogue[], int count) {
-    struct Song temp;
-    for (int i = 0; i < count - 1; i++) {
-        for (int j = 0; j < count - i - 1; j++) {
+    struct Song temp;//creates a temporary empty song structure as a holding spot for when you are swapping songs
+    for (int i = 0; i < count - 1; i++) {//creates a loop for the amount of passes you make through the list to make sure everything is sorted
+        for (int j = 0; j < count - i - 1; j++) {//another loop that compares songs next to each other during the current pass.
             if (catalogue[j].price > catalogue[j + 1].price) {
-                // Swap the two song structures
-                temp = catalogue[j];
-                catalogue[j] = catalogue[j + 1];
-                catalogue[j + 1] = temp;
+                temp = catalogue[j];//copies the song structure to the temporary empty song structure
+                catalogue[j] = catalogue[j + 1];//moves the cheaper song into the earlier slot
+                catalogue[j + 1] = temp;//puts the more expensive song into the later slot
             }
         }
     }
 }
 
-// Option [4]: Sort and print the catalogue to the screen
+//function to sort the catalogue and print it
 void printCatalogue(struct Song catalogue[], int count) {
-    if (count == 0) {
-        printf("\nCatalogue is empty! Enter data [1] or Read from file [3] first.\n");
+    if (count == 0) {//checks if any songs are in memory
+        printf("\nCatalogue is empty! Please enter data or read from file first.\n");
         return;
     }
 
-    // Sort by price ascending before displaying
+    // sorts songs by price low to high
     sortCatalogueByPrice(catalogue, count);
 
     printf("\n================ SONG CATALOGUE (Ordered by Price: Low to High) ================\n");
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) {//loops from 0 to the current count
         printf("Name of Band: %s\n", catalogue[i].band);
         printf("Name of Song: %s\n", catalogue[i].title);
         printf("Price: %.2f\n", catalogue[i].price);
